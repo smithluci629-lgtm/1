@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Loen</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Link đến file CSS riêng -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Top Navigation -->
+        <div class="top-nav fade-in-up">
+            <!-- Guest view -->
+            <div id="guestNav" class="nav-actions">
+                <button onclick="openSettings()" class="btn btn-secondary">
+                    <i class="fas fa-cog"></i> API Key
+                </button>
+                <button onclick="openLoginModal()" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </div>
+
+            <!-- Logged in view -->
+            <div id="userNav" style="display: none;" class="nav-actions">
+                <div class="user-info">
+                    <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
+                    <div class="user-details">
+                        <div id="userName" class="user-name"></div>
+                        <div id="userStats" class="user-stats">Loading...</div>
+                    </div>
+                </div>
+                <button onclick="openSettings()" class="btn btn-secondary">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button onclick="logout()" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs fade-in-up">
+            <button class="tab active" onclick="switchTab('practice')">
+                <i class="fas fa-book-open"></i> Practice
+            </button>
+            <button class="tab" onclick="switchTab('history')">
+                <i class="fas fa-history"></i> History
+            </button>
+            <button class="tab" onclick="switchTab('leaderboard')">
+                <i class="fas fa-trophy"></i> Leaderboard
+            </button>
+            <button class="tab" onclick="switchTab('notes')">
+                <i class="fas fa-sticky-note"></i> Notes
+            </button>
+        </div>
+
+        <!-- Practice Tab -->
+        <div id="practiceTab" class="tab-content active">
+            <div class="card fade-in-up">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-paste"></i> Paste Vietnamese Story
+                    </div>
+                </div>
+                <div class="card-body">
+                    <textarea id="pasteArea" placeholder="Paste your Vietnamese text here..."></textarea>
+                    <button onclick="analyzeStory()" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-magic"></i> Generate Lesson
+                    </button>
+                </div>
+            </div>
+
+            <div id="lessonArea" style="display:none;">
+                <div class="card fade-in-up">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-language"></i> Story Translation
+                        </div>
+                        <div class="progress-info">
+                            <span id="currentStep">1</span> / <span id="totalSteps">0</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div class="card-body">
+                        <div id="storyContainer" class="story-container"></div>
+                        <div class="input-section">
+                            <textarea id="userInput" placeholder="Type your English translation here..."></textarea>
+                            <div class="button-group">
+                                <button id="btnCheck" onclick="checkCurrentSentence()" class="btn btn-primary">
+                                    <i class="fas fa-check"></i> Check
+                                </button>
+                                <button id="btnPrevious" onclick="previousSentence()" class="btn btn-secondary" style="display:none;">
+                                    <i class="fas fa-arrow-left"></i> Previous
+                                </button>
+                                <button id="btnBack" onclick="renderStoryUI()" class="btn btn-secondary" style="display:none;">
+                                    <i class="fas fa-arrow-left"></i> Back
+                                </button>
+                                <button id="btnRetry" onclick="retrySentence()" class="btn btn-secondary" style="display:none;">
+                                    <i class="fas fa-redo"></i> Retry
+                                </button>
+                                <button id="btnStartOver" onclick="startOver()" class="btn btn-secondary" style="display:none;">
+                                    <i class="fas fa-refresh"></i> Start Over
+                                </button>
+                                <button id="btnNext" onclick="nextSentence()" class="btn btn-primary" style="display:none;">
+                                    <i class="fas fa-arrow-right"></i> Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card fade-in-up">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-comments"></i> Feedback
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="feedbackBox">
+                            <div class="empty-state">
+                                <i class="fas fa-lightbulb"></i>
+                                <h3>Ready to Learn!</h3>
+                                <p>Paste Vietnamese text above and generate your lesson</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="historyTab" class="tab-content">
+            <div class="card fade-in-up">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-history"></i> Your Learning History
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="historyList">
+                        <div class="login-needed">
+                            <i class="fas fa-lock"></i>
+                            <h3>Sign in to view history</h3>
+                            <p>Track your progress and view past lessons</p>
+                            <button onclick="openLoginModal()" class="btn btn-primary" style="margin-top: 20px;">
+                                <i class="fas fa-sign-in-alt"></i> Login Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Tab -->
+        <div id="leaderboardTab" class="tab-content">
+            <div class="card fade-in-up">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-trophy"></i> Top Learners
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="leaderboardList">
+                        <div class="empty-state">
+                            <i class="fas fa-trophy"></i>
+                            <h3>Loading leaderboard...</h3>
+                            <p>See who's leading the pack</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Tab -->
+        <div id="notesTab" class="tab-content">
+            <div class="card fade-in-up">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-sticky-note"></i> Your Notes
+                    </div>
+                    <button onclick="openCreateNoteModal()" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Note
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="notesList">
+                        <div class="login-needed">
+                            <i class="fas fa-lock"></i>
+                            <h3>Sign in to create notes</h3>
+                            <p>Save important phrases and vocabulary</p>
+                            <button onclick="openLoginModal()" class="btn btn-primary" style="margin-top: 20px;">
+                                <i class="fas fa-sign-in-alt"></i> Login Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content modal-fade-in">
+            <div class="modal-header">
+                <h2><i class="fas fa-cog"></i> Settings</h2>
+                <button onclick="closeSettings()" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h3 style="margin-bottom: 16px; color: var(--text-highlight); font-size: 1.1rem;">
+                    <i class="fas fa-key"></i> API Keys
+                </h3>
+                <div id="apiKeysList"></div>
+                <div style="margin-top: 16px;">
+                    <input type="text" id="newApiKey" placeholder="Enter new API key..."
+                        style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); margin-bottom: 12px;">
+                    <button onclick="addApiKey()" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-plus"></i> Add API Key
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content modal-fade-in">
+            <div class="modal-header">
+                <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+                <button onclick="closeLoginModal()" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="email" id="loginEmail" placeholder="Email" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); margin-bottom: 12px;">
+                <input type="password" id="loginPassword" placeholder="Password" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); margin-bottom: 16px;">
+                <button onclick="login()" class="btn btn-primary" style="width: 100%; margin-bottom: 12px;">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <button onclick="showSignup()" class="btn btn-secondary" style="width: 100%;">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content modal-fade-in">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> Create Account</h2>
+                <button onclick="closeSignupModal()" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="email" id="signupEmail" placeholder="Email" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); margin-bottom: 12px;">
+                <input type="password" id="signupPassword" placeholder="Password (min 6 characters)" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); margin-bottom: 12px;">
+                <input type="text" id="signupUsername" placeholder="Username" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); margin-bottom: 16px;">
+                <button onclick="signup()" class="btn btn-primary" style="width: 100%; margin-bottom: 12px;">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </button>
+                <button onclick="showLogin()" class="btn btn-secondary" style="width: 100%;">
+                    <i class="fas fa-sign-in-alt"></i> Already have an account?
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Note Modal -->
+    <div id="createNoteModal" class="modal">
+        <div class="modal-content modal-fade-in">
+            <div class="modal-header">
+                <h2><i class="fas fa-sticky-note"></i> <span id="noteModalTitle">Create Note</span></h2>
+                <button onclick="closeCreateNoteModal()" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="noteTitle" placeholder="Title" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); margin-bottom: 12px;">
+                <textarea id="noteContent" placeholder="Content..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); min-height: 150px; resize: vertical; font-family: 'Poppins', sans-serif; margin-bottom: 16px;"></textarea>
+                <button onclick="saveNote()" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-save"></i> Save Note
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Note Confirmation Modal -->
+    <div id="deleteNoteModal" class="modal">
+        <div class="modal-content modal-fade-in">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Delete Note</h2>
+                <button onclick="closeDeleteNoteModal()" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">Are you sure you want to delete this note? This action cannot be undone.</p>
+                <div style="display: flex; gap: 12px;">
+                    <button onclick="closeDeleteNoteModal()" class="btn btn-secondary" style="flex: 1;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button onclick="confirmDeleteNote()" class="btn btn-danger" style="flex: 1;">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load external libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "@google/genai": "https://esm.run/@google/generative-ai"
+        }
+    }
+    </script>
+    
+    <!-- Link đến file JavaScript riêng -->
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
